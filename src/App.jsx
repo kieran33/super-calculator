@@ -1,15 +1,11 @@
-import React from "react";
-import Money from "./components/money";
-import Chart from "./components/chart";
+import { BrowserRouter } from "react-router-dom";
+import Router from "./router/router";
+import "./index.css";
 
-function App() {
+export default function App() {
   return (
-    <div>
-      <h1>test</h1>
-      <Money />
-      <Chart />
-    </div>
+    <BrowserRouter>
+      <Router />
+    </BrowserRouter>
   );
 }
-
-export default App;
