@@ -24,6 +24,7 @@ const Home = () => {
   const [base, setBase] = useState("EUR");
   const [amount, setAmount] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [offline, setOffline] = useState(!navigator.onLine);
 
   const allowedCurrencies = [
     "EUR",
@@ -38,26 +39,70 @@ const Home = () => {
     "CNY",
   ];
 
+  // 🔌 Detection de la connexion
   useEffect(() => {
-    fetch("https://open.er-api.com/v6/latest/EUR")
-      .then((res) => res.json())
-      .then((data) => {
-        setBase(data.base || "EUR");
-        setRates(data.rates || {});
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
+    const goOnline = () => setOffline(false);
+    const goOffline = () => setOffline(true);
+
+    window.addEventListener("online", goOnline);
+    window.addEventListener("offline", goOffline);
+
+    return () => {
+      window.removeEventListener("online", goOnline);
+      window.removeEventListener("offline", goOffline);
+    };
   }, []);
+
+  // 🔥 Récupération API + stockage local
+  const fetchRates = async () => {
+    try {
+      const res = await fetch("https://open.er-api.com/v6/latest/EUR");
+      const data = await res.json();
+
+      // On filtre tes devises autorisées
+      const filteredRates = Object.fromEntries(
+        Object.entries(data.rates).filter(([currency]) =>
+          allowedCurrencies.includes(currency)
+        )
+      );
+
+      // 📦 stockage local
+      localStorage.setItem("currency_home_base", data.base);
+      localStorage.setItem(
+        "currency_home_rates",
+        JSON.stringify(filteredRates)
+      );
+
+      setBase(data.base);
+      setRates(filteredRates);
+    } catch (err) {
+      console.error("Erreur API :", err);
+    }
+  };
+
+  // 📥 Utiliser les données stockées si OFFLINE
+  useEffect(() => {
+    const storedRates = localStorage.getItem("currency_home_rates");
+    const storedBase = localStorage.getItem("currency_home_base");
+
+    if (!navigator.onLine) {
+      if (storedRates) {
+        setBase(storedBase || "EUR");
+        setRates(JSON.parse(storedRates));
+      }
+      setLoading(false);
+      return;
+    }
+
+    // 🌍 Si online, on appelle l'API
+    fetchRates().finally(() => setLoading(false));
+  }, [offline]);
 
   if (loading)
     return <p className="text-center mt-10 animate-pulse">Chargement...</p>;
 
-  const chartLabels = Object.keys(rates).filter((currency) =>
-    allowedCurrencies.includes(currency)
-  );
+  // 🔢 Data affichées
+  const chartLabels = Object.keys(rates);
   const chartValues = chartLabels.map(
     (currency) => +(rates[currency] * amount).toFixed(4)
   );
@@ -66,7 +111,7 @@ const Home = () => {
     labels: chartLabels,
     datasets: [
       {
-        label: `Taux par rapport à ${base}`,
+        label: "Taux par rapport à EUR",
         data: chartValues,
         backgroundColor: [
           "#f87171",
@@ -91,7 +136,10 @@ const Home = () => {
     maintainAspectRatio: false,
     plugins: {
       legend: { position: "top" },
-      title: { display: true, text: `Taux de change (${base})` },
+      title: {
+        display: true,
+        text: `Taux de change EUR ${offline ? " - MODE OFFLINE" : ""}`,
+      },
     },
     scales: {
       y: {
@@ -110,7 +158,8 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-yellow-200 p-6 flex flex-col items-center">
       <h1 className="text-4xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-green-500 to-blue-500 mb-8 animate-bounce">
-        Convertisseur de devises
+        Convertisseur de devises{" "}
+        {offline && <span className="text-red-500">(Offline)</span>}
       </h1>
 
       <div className="flex justify-center mb-8">
@@ -122,11 +171,11 @@ const Home = () => {
           className="border-4 border-black rounded w-32 p-3 mr-2 text-black font-bold animate-ping-slow"
         />
         <span className="text-2xl font-extrabold text-black animate-pulse">
-          {base}
+          EUR
         </span>
       </div>
 
-      {/* Cartes des devises (sans barre) */}
+      {/* Cartes des devises */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mb-10 w-full max-w-6xl">
         {displayData.map((item) => (
           <div
