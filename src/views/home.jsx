@@ -102,7 +102,6 @@ const Home = () => {
     },
   };
 
-  // Données pour les cartes (sans les barres)
   const displayData = chartLabels.map((currency) => ({
     currency,
     value: +(rates[currency] * amount).toFixed(4),
@@ -114,10 +113,10 @@ const Home = () => {
         Convertisseur de devises
       </h1>
 
-      {/* Input amount */}
       <div className="flex justify-center mb-8">
         <input
           type="number"
+          min="1"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           className="border-4 border-black rounded w-32 p-3 mr-2 text-black font-bold animate-ping-slow"
