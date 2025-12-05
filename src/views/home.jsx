@@ -39,7 +39,6 @@ const Home = () => {
     "CNY",
   ];
 
-  // 🔌 Detection de la connexion
   useEffect(() => {
     const goOnline = () => setOffline(false);
     const goOffline = () => setOffline(true);
@@ -53,20 +52,17 @@ const Home = () => {
     };
   }, []);
 
-  // 🔥 Récupération API + stockage local
   const fetchRates = async () => {
     try {
       const res = await fetch("https://open.er-api.com/v6/latest/EUR");
       const data = await res.json();
 
-      // On filtre tes devises autorisées
       const filteredRates = Object.fromEntries(
         Object.entries(data.rates).filter(([currency]) =>
           allowedCurrencies.includes(currency)
         )
       );
 
-      // 📦 stockage local
       localStorage.setItem("currency_home_base", data.base);
       localStorage.setItem(
         "currency_home_rates",
@@ -80,7 +76,6 @@ const Home = () => {
     }
   };
 
-  // 📥 Utiliser les données stockées si OFFLINE
   useEffect(() => {
     const storedRates = localStorage.getItem("currency_home_rates");
     const storedBase = localStorage.getItem("currency_home_base");
@@ -94,14 +89,12 @@ const Home = () => {
       return;
     }
 
-    // 🌍 Si online, on appelle l'API
     fetchRates().finally(() => setLoading(false));
   }, [offline]);
 
   if (loading)
     return <p className="text-center mt-10 animate-pulse">Chargement...</p>;
 
-  // 🔢 Data affichées
   const chartLabels = Object.keys(rates);
   const chartValues = chartLabels.map(
     (currency) => +(rates[currency] * amount).toFixed(4)
@@ -175,7 +168,6 @@ const Home = () => {
         </span>
       </div>
 
-      {/* Cartes des devises */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mb-10 w-full max-w-6xl">
         {displayData.map((item) => (
           <div
@@ -194,7 +186,6 @@ const Home = () => {
         ))}
       </div>
 
-      {/* Graphique centré */}
       <div className="w-full max-w-4xl h-96 bg-white p-6 rounded shadow-lg mb-10">
         <Bar data={chartData} options={chartOptions} />
       </div>
