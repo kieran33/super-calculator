@@ -14,6 +14,7 @@ import { SortableContext, useSortable, arrayMove } from "@dnd-kit/sortable";
 
 import { useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import { Link } from "react-router-dom";
 
 // CHIP DRAGGABLE ---------------------------------------------------------
 
@@ -155,7 +156,10 @@ export default function TierList() {
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
     >
-      <h1 className="title">🍟 Tier List</h1>
+      <nav className="text-center">
+        <Link to="/">Accueil</Link>
+      </nav>
+      <h1 className="title">Tier List</h1>
 
       <div className="tier-container">
         {Object.keys(tiers).map((tierKey) => (
