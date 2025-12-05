@@ -156,8 +156,8 @@ const Home = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-yellow-200 p-6 flex flex-col items-center">
-      <h1 className="text-4xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-green-500 to-blue-500 mb-8 animate-bounce">
+    <div className="min-h-screen bg-linear-to-br from-purple-200 via-pink-100 to-yellow-200 p-6 flex flex-col items-center">
+      <h1 className="text-4xl font-extrabold text-center text-transparent bg-clip-text bg-linear-to-r from-red-500 via-green-500 to-blue-500 mb-8 animate-bounce">
         Convertisseur de devises{" "}
         {offline && <span className="text-red-500">(Offline)</span>}
       </h1>
